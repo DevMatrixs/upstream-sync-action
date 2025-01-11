@@ -14,10 +14,6 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive.key | tee /etc/
     apk update && \
     apk add gh
 
-ENV GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
-ENV GIT_NAME=GitHub Actions
-ENV GIT_EMAIL=actions@github.com
-
 COPY entrypoint.sh /entrypoint.sh
 
 RUN chmod +x /entrypoint.sh
