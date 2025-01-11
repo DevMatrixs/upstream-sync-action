@@ -1,7 +1,7 @@
 name: 'Upstream Sync'
 description: 'Sync your repository with an upstream repository'
 
-author: 'Your Name <your-email@example.com>'
+author: 'DevMatrixs'
 
 inputs:
   GIT_NAME:
