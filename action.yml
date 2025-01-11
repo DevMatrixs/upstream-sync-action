@@ -1,0 +1,32 @@
+name: 'Upstream Sync and Merge Action'
+description: 'Synchronize and merge changes from an upstream repository'
+author: 'Dev-Hexx'
+
+inputs:
+  upstream_repo_url:
+    description: 'URL of the upstream repository'
+    required: true
+  branch:
+    description: 'Branch to sync with from upstream'
+    required: false
+    default: 'main'
+  target_branch:
+    description: 'Branch to merge changes into'
+    required: false
+    default: 'main'
+  token:
+    description: 'GitHub Token for authentication'
+    required: true
+
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  env:
+    UPSTREAM_REPO: ${{ inputs.upstream_repo_url }}
+    BRANCH: ${{ inputs.branch }}
+    TARGET_BRANCH: ${{ inputs.target_branch }}
+    GH_TOKEN: ${{ inputs.token }}
+
+branding:
+  icon: 'sync'
+  color: 'blue'

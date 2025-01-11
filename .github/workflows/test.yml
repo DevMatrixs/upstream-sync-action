@@ -1,0 +1,26 @@
+name: Test Upstream Sync Action
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:  # Manually trigger the workflow
+
+jobs:
+  test:
+    runs-on: ubuntu-latest  # Ubuntu runner use karenge
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2  # Repository ko checkout karna
+
+      - name: Run Upstream Sync Action
+        uses: ravi43214321/upstream-sync-action@v3.1.0  # Action ko current repository se use karna
+        with:
+          upstream_repo_url: 'https://github.com/j-hc/revanced-magisk-module.git'  # Apna upstream repository URL yahan daalein
+          branch: 'main'  # Branch jo sync karni hai
+          target_branch: 'main'  # Target branch jisme changes merge karne hain
+          token: ${{ secrets.GH_TOKEN }}  # Token ko workflow se pass karna
