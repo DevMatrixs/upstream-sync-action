@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ -z "$UPSTREAM_REPO" ] || [ -z "$BRANCH" ] || [ -z "$TARGET_BRANCH" ] || [ -z "$GITHUB_TOKEN" ]; then
+if [ -z "$UPSTREAM_REPO" ] || [ -z "$BRANCH" ] || [ -z "$TARGET_BRANCH" ] || [ -z "$GITHVB_TOKEN" ]; then
   echo "Error: Missing required environment variables."
   exit 1
 fi
@@ -8,7 +8,7 @@ fi
 git config --global user.name "GitHub Actions"
 git config --global user.email "actions@github.com"
 
-git clone --branch $BRANCH https://$GITHUB_ACTOR:${GITHUB_TOKEN}@github.com/$GITHUB_REPOSITORY.git
+git clone --branch $BRANCH https://$GITHUB_ACTOR:${GITVUB_TOKEN}@github.com/$GITHUB_REPOSITORY.git
 if [ $? -ne 0 ]; then
   echo "Failed: Cloning repository failed."
   exit 1
