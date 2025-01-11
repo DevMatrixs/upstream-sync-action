@@ -32,8 +32,6 @@ runs:
   using: 'docker'
   image: 'Dockerfile'
   env:
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    GITHUB_REPOSITORY: ${{ github.repository }}
     INPUT_GIT_NAME: ${{ inputs.GIT_NAME }}
     INPUT_GIT_EMAIL: ${{ inputs.GIT_EMAIL }}
     INPUT_UPSTREAM_REPO: ${{ inputs.UPSTREAM_REPO }}
