@@ -1,7 +1,7 @@
 name: 'Upstream Sync'
 description: 'Sync your repository with an upstream repository'
 
-author: 'DevMatrixs'
+author: 'Your Name <your-email@example.com>'
 
 inputs:
   GIT_NAME:
@@ -32,8 +32,11 @@ runs:
   using: 'docker'
   image: 'Dockerfile'
   env:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    GITHUB_REPOSITORY: ${{ github.repository }}
+    INPUT_GIT_NAME: ${{ inputs.GIT_NAME }}
+    INPUT_GIT_EMAIL: ${{ inputs.GIT_EMAIL }}
     INPUT_UPSTREAM_REPO: ${{ inputs.UPSTREAM_REPO }}
     INPUT_TARGET_BRANCH: ${{ inputs.TARGET_BRANCH }}
     INPUT_UPSTREAM_BRANCH: ${{ inputs.UPSTREAM_BRANCH }}
     INPUT_FORCE_PUSH: ${{ inputs.FORCE_PUSH }}
-  entrypoint: "/home/ci/entrypoint.sh"
