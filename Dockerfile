@@ -1,11 +1,13 @@
-FROM alpine:3.18
+FROM alpine:latest
 
-WORKDIR /usr/src/app
+RUN apk add --no-cache \
+	bash \
+	git
 
-RUN apk add --no-cache git bash
+RUN adduser -D ci
 
-COPY entrypoint.sh /entrypoint.sh
+ADD *.sh /home/ci/
 
-RUN chmod +x /entrypoint.sh
+RUN chmod 555 /home/ci/*.sh 
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/home/ci/entrypoint.sh"]
