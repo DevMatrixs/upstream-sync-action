@@ -1,27 +1,24 @@
-name: Upstream Sync Workflow
+name: Sync with Upstream
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:  # Manual trigger ke liye
 
 jobs:
-  sync-upstream:
+  sync:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
+      # Step 1: Repository ko checkout karna
+      - name: Checkout the repository
         uses: actions/checkout@v2
 
-      - name: Set up Docker
-        uses: docker/setup-buildx-action@v2
-
-      - name: Build and run Upstream Sync Action
-        uses: ./ 
+      # Step 2: Docker action ko run karna (same repository mein)
+      - name: Sync with upstream repository
+        uses: ./  # Ye current directory se action ko use karega
         with:
-          GIT_NAME: '${{ secrets.GIT_NAME }}'
-          GIT_EMAIL: '${{ secrets.GIT_EMAIL }}'
-          UPSTREAM_REPO: 'upstream-owner/repository-name'
-          TARGET_BRANCH: 'main'
-          UPSTREAM_BRANCH: 'main'
-          FORCE_PUSH: 'false'
-          
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_NAME: 'GitHub Actions'  # Agar aapko default user name chahiye
+          GIT_EMAIL: 'actions@github.com'  # Agar aapko default email chahiye
+          UPSTREAM_REPO: 'upstream/repository-name'  # Upstream repository ka naam
+          TARGET_BRANCH: 'main'  # Target branch (default 'main')
+          UPSTREAM_BRANCH: 'main'  # Upstream branch (default 'main')
+          FORCE_PUSH: 'false'  # Force push ko false rakhein
