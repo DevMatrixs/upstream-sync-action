@@ -1,18 +1,18 @@
 FROM alpine:latest
 
+# Install necessary packages
 RUN apk add --no-cache \
     bash \
     git
 
-RUN adduser -D ci
+# Add your script files to the container
+ADD *.sh /home/root/
 
-ADD *.sh /home/ci/
+# Make the scripts executable
+RUN chmod 555 /home/root/*.sh
 
-RUN chmod 555 /home/ci/*.sh
+# Set the working directory
+WORKDIR /home/root
 
-# Create .gitconfig file and set correct permissions
-RUN touch /home/ci/.gitconfig && chmod 666 /home/ci/.gitconfig
-
-USER ci
-
-ENTRYPOINT ["/home/ci/entrypoint.sh"]
+# Set entrypoint to your script
+ENTRYPOINT ["/home/root/entrypoint.sh"]
