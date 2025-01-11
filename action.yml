@@ -1,31 +1,34 @@
-name: 'Upstream Sync and Merge Action'
-description: 'Synchronize and merge changes from an upstream repository'
-author: 'Dev-Hexx'
+name: 'Upstream Sync'
+description: 'Sync your repository with an upstream repository'
+
+author: 'Your Name <your-email@example.com>'
 
 inputs:
-  upstream_repo_url:
-    description: 'URL of the upstream repository'
+  GIT_NAME:
+    description: 'Git user name (default: GitHub Actions)'
+    required: false
+    default: 'GitHub Actions'
+  GIT_EMAIL:
+    description: 'Git user email (default: actions@github.com)'
+    required: false
+    default: 'actions@github.com'
+  UPSTREAM_REPO:
+    description: 'The name of the upstream repository (required).'
     required: true
-  branch:
-    description: 'Branch to sync with from upstream'
+  TARGET_BRANCH:
+    description: 'The target branch in your repository (default: main)'
     required: false
     default: 'main'
-  target_branch:
-    description: 'Branch to merge changes into'
+  UPSTREAM_BRANCH:
+    description: 'The upstream branch to merge from (default: main)'
     required: false
     default: 'main'
-  token:
-    description: 'GitHub Token for authentication'
-    required: true
+  FORCE_PUSH:
+    description: 'If true, forces push to the target branch'
+    required: false
+    default: 'false'
 
 runs:
   using: 'docker'
   image: 'Dockerfile'
-  env:
-    UPSTREAM_REPO: ${{ inputs.upstream_repo_url }}
-    BRANCH: ${{ inputs.branch }}
-    TARGET_BRANCH: ${{ inputs.target_branch }}
-
-branding:
-  icon: 'sync'
-  color: 'blue'
+  entrypoint: '/entrypoint.sh'
