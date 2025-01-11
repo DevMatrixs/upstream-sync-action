@@ -25,7 +25,6 @@ runs:
     UPSTREAM_REPO: ${{ inputs.upstream_repo_url }}
     BRANCH: ${{ inputs.branch }}
     TARGET_BRANCH: ${{ inputs.target_branch }}
-    GITHUB_TOKEN: ${{ inputs.token }}
 
 branding:
   icon: 'sync'
