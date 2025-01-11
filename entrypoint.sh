@@ -18,27 +18,28 @@ fi
 git config --global user.name "$GIT_NAME"
 git config --global user.email "$GIT_EMAIL"
 
-echo "Cloning repository..."
-if ! git clone -q https://x-access-token:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git /tmp/repo; then
+echo "+ Cloning repository..."
+if ! git clone https://x-access-token:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git /tmp/repo; then
   echo "Error: Failed to clone the repository."
   exit 1
 fi
 
 cd /tmp/repo
 
-echo "Adding upstream repository..."
+echo "+ Adding upstream repository..."
 if ! git remote set-url origin https://x-access-token:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git; then
   echo "Error: Failed to set the remote URL."
   exit 1
 fi
 
-echo "Fetching upstream repository..."
+echo "+ Fetching upstream repository..."
 if ! git remote add upstream https://github.com/$INPUT_UPSTREAM_REPO.git; then
   echo "Error: Failed to add the upstream repository."
   exit 1
 fi
 
-if ! git fetch -q upstream; then
+echo "* Fetching upstream changes..."
+if ! git fetch upstream; then
   echo "Error: Failed to fetch changes from upstream."
   exit 1
 fi
@@ -46,15 +47,22 @@ fi
 TARGET_BRANCH="${INPUT_TARGET_BRANCH:-main}"
 UPSTREAM_BRANCH="${INPUT_UPSTREAM_BRANCH:-main}"
 
-echo "Checking out to the target branch: $TARGET_BRANCH..."
-if ! git checkout -q "$TARGET_BRANCH"; then
+echo "+ Checking out to the target branch: $TARGET_BRANCH..."
+if ! git checkout "$TARGET_BRANCH"; then
   echo "Error: Failed to checkout to the target branch: $TARGET_BRANCH."
   exit 1
 fi
 
-echo "Merging from upstream branch: $UPSTREAM_BRANCH..."
-if ! git merge -q upstream/$UPSTREAM_BRANCH --no-ff --commit --message "Sync with upstream"; then
+echo "+ Merging from upstream branch: $UPSTREAM_BRANCH..."
+if ! git merge upstream/$UPSTREAM_BRANCH --no-ff --commit --message "Sync with upstream"; then
   echo "Error: Merge conflict or failed to merge with upstream."
+  exit 1
+fi
+
+# Push the changes to the remote repository
+echo "+ Pushing changes to the remote repository..."
+if ! git push origin "$TARGET_BRANCH"; then
+  echo "Error: Failed to push changes to the repository."
   exit 1
 fi
 
