@@ -32,8 +32,6 @@ runs:
   using: 'docker'
   image: 'Dockerfile'
   env:
-    INPUT_GIT_NAME: ${{ inputs.GIT_NAME }}
-    INPUT_GIT_EMAIL: ${{ inputs.GIT_EMAIL }}
     INPUT_UPSTREAM_REPO: ${{ inputs.UPSTREAM_REPO }}
     INPUT_TARGET_BRANCH: ${{ inputs.TARGET_BRANCH }}
     INPUT_UPSTREAM_BRANCH: ${{ inputs.UPSTREAM_BRANCH }}
