@@ -16,7 +16,7 @@ jobs:
         with:
           GIT_NAME: 'GitHub Actions'
           GIT_EMAIL: 'actions@github.com'
-          UPSTREAM_REPO: 'upstream/repository-name'
+          UPSTREAM_REPO: 'j-hc/revanced-magisk-module'
           TARGET_BRANCH: 'main'
           UPSTREAM_BRANCH: 'main'
           FORCE_PUSH: 'false'
