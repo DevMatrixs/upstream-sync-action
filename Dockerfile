@@ -10,7 +10,8 @@ ADD *.sh /home/ci/
 
 RUN chmod 555 /home/ci/*.sh
 
-RUN touch /home/ci/.gitconfig && chmod 777 /home/ci/.gitconfig
+# Create .gitconfig file and set correct permissions
+RUN touch /home/ci/.gitconfig && chmod 666 /home/ci/.gitconfig
 
 USER ci
 
