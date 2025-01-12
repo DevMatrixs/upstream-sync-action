@@ -1,10 +1,9 @@
 name: "Upstream Sync and Push"
 description: "This action syncs with the upstream repository and pushes changes"
-
 inputs:
   github_token:
-    description: 'GitHub Token for authentication (if not provided, defaults to GitHub token)'
-    required: false
+    description: 'GitHub Token for authentication'
+    required: true
   upstream_repo:
     description: 'Name of the upstream repository (e.g., username/repo-name)'
     required: true
@@ -14,13 +13,11 @@ inputs:
   target_branch:
     description: 'Branch in the forked repo to push changes to'
     required: true
-
 runs:
   using: 'docker'
   image: 'Dockerfile'
   args:
-    - '${{ inputs.github_token }}'  # If provided
-    - '${{ secrets.GITHUB_TOKEN }}'  # Fallback to GitHub Actions token
+    - '${{ inputs.github_token }}'
     - '${{ inputs.upstream_repo }}'
     - '${{ inputs.source_branch }}'
     - '${{ inputs.target_branch }}'
