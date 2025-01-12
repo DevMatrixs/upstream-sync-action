@@ -1,52 +1,23 @@
-name: Sync and merge upstream repository with your current repository
-description: Syncs and merges your current repository with the upstream repository. Fork of https://github.com/mheene/sync-upstream-repo.
-author: Dabreadman
-
+name: "Upstream Sync and Push"
+description: "This action syncs with the upstream repository and pushes changes"
 inputs:
+  github_token:
+    description: 'GitHub Token for authentication'
+    required: true
   upstream_repo:
-    description: URL of gitHub public upstream repo
+    description: 'Name of the upstream repository (e.g., username/repo-name)'
     required: true
-  upstream_branch:
-    description: Branch to merge from upstream (defaults to downstream branch)
-    required: false
-    default: "main"
-  downstream_branch:
-    description: Branch to merge into downstream
-    required: false
-    default: ""
-  token:
-    description: GitHub Bot token
+  source_branch:
+    description: 'Branch from the upstream repository to sync from'
     required: true
-  fetch_args:
-    description: Git fetch arguments
-    required: false
-    default: ""
-  merge_args:
-    description: Git merge arguments
-    required: false
-    default: ""
-  push_args:
-    description: Git push arguments
-    required: false
-    default: ""
-  spawn_logs: 
-    description: Toggle to spawn `sync-upstream-repo` with time logs
+  target_branch:
+    description: 'Branch in the forked repo to push changes to'
     required: true
-    default: false
-
 runs:
-  using: "docker"
-  image: "Dockerfile"
+  using: 'docker'
+  image: 'Dockerfile'
   args:
-    - ${{ inputs.upstream_repo }}
-    - ${{ inputs.upstream_branch }}
-    - ${{ inputs.downstream_branch }}
-    - ${{ inputs.token }}
-    - ${{ inputs.fetch_args }}
-    - ${{ inputs.merge_args }}
-    - ${{ inputs.push_args }}
-    - ${{ inputs.spawn_logs }}
-
-branding:
-  icon: "git-merge"
-  color: "blue"
+    - '${{ inputs.github_token }}'
+    - '${{ inputs.upstream_repo }}'
+    - '${{ inputs.source_branch }}'
+    - '${{ inputs.target_branch }}'
