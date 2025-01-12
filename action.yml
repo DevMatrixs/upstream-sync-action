@@ -1,36 +1,51 @@
-name: 'Upstream Sync'
-description: 'Sync your repository with an upstream repository'
-
-author: 'Your Name <your-email@example.com>'
+name: Sync and merge upstream repository with your current repository
+description: Syncs and merges your current repository with the upstream repository. Fork of https://github.com/mheene/sync-upstream-repo.
+author: Dabreadman
 
 inputs:
-  GIT_NAME:
-    description: 'Git user name (default: GitHub Actions)'
-    required: false
-    default: 'GitHub Actions'
-  GIT_EMAIL:
-    description: 'Git user email (default: actions@github.com)'
-    required: false
-    default: 'actions@github.com'
-  UPSTREAM_REPO:
-    description: 'The name of the upstream repository (required).'
+  upstream_repo:
+    description: URL of gitHub public upstream repo
     required: true
-  TARGET_BRANCH:
-    description: 'The target branch in your repository (default: main)'
+  upstream_branch:
+    description: Branch to merge from upstream (defaults to downstream branch)
     required: false
-    default: 'main'
-  UPSTREAM_BRANCH:
-    description: 'The upstream branch to merge from (default: main)'
+    default: "main"
+  downstream_branch:
+    description: Branch to merge into downstream
     required: false
-    default: 'main'
-  FORCE_PUSH:
-    description: 'If true, forces push to the target branch'
+    default: ""
+  token:
+    description: GitHub Bot token
+    required: true
+  fetch_args:
+    description: Git fetch arguments
     required: false
-    default: 'false'
+    default: ""
+  merge_args:
+    description: Git merge arguments
+    required: false
+    default: ""
+  push_args:
+    description: Git push arguments
+    required: false
+    default: ""
+  spawn_logs: 
+    description: Toggle to spawn `sync-upstream-repo` with time logs
+    required: true
+    default: false
 
 runs:
-  using: 'docker'
-  image: 'Dockerfile'
+  using: "docker"
+  image: "Dockerfile"
+  args:
+    - ${{ inputs.upstream_repo }}
+    - ${{ inputs.upstream_branch }}
+    - ${{ inputs.downstream_branch }}
+    - ${{ inputs.token }}
+    - ${{ inputs.fetch_args }}
+    - ${{ inputs.merge_args }}
+    - ${{ inputs.push_args }}
+    - ${{ inputs.spawn_logs }}
 
 branding:
   icon: "git-merge"
