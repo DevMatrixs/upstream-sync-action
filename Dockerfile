@@ -1,14 +1,11 @@
-# Use an official GitHub Actions base image
-FROM ghcr.io/actions/checkout:latest
+FROM alpine:latest
 
-# Set the working directory
+RUN apk add --no-cache git bash
+
 WORKDIR /workspace
 
-# Copy entrypoint.sh script into the container
 COPY entrypoint.sh /entrypoint.sh
 
-# Make the script executable
 RUN chmod +x /entrypoint.sh
 
-# Set the default entrypoint to the script
 ENTRYPOINT ["/entrypoint.sh"]
