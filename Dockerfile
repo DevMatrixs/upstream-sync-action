@@ -1,9 +1,6 @@
 # Use an official GitHub Actions base image
 FROM ghcr.io/actions/checkout:latest
 
-# Install git
-RUN apt-get update && apt-get install -y git
-
 # Set the working directory
 WORKDIR /workspace
 
