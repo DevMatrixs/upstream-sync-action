@@ -22,7 +22,8 @@ log_footer() {
     echo -e "\033[1;34mUpstream Sync Process Completed.\033[0m"
 }
 
-GITHUB_TOKEN=$1
+# Check if GITHUB_TOKEN is passed as an argument or fallback to environment variable
+GITHUB_TOKEN="${1:-$GITHUB_TOKEN}"
 UPSTREAM_REPO=$2
 SOURCE_BRANCH=$3
 TARGET_BRANCH=$4
