@@ -4,7 +4,7 @@ description: "This action syncs with the upstream repository and pushes changes"
 inputs:
   github_token:
     description: 'GitHub Token for authentication (if not provided, defaults to GitHub token)'
-    required: false  # Now optional since we will default to GitHub Actions token if not provided
+    required: false
   upstream_repo:
     description: 'Name of the upstream repository (e.g., username/repo-name)'
     required: true
@@ -19,7 +19,8 @@ runs:
   using: 'docker'
   image: 'Dockerfile'
   args:
-    - '${{ inputs.github_token || secrets.GITHUB_TOKEN }}'  # Will use the passed token or GitHub token
+    - '${{ inputs.github_token }}'  # If provided
+    - '${{ secrets.GITHUB_TOKEN }}'  # Fallback to GitHub Actions token
     - '${{ inputs.upstream_repo }}'
     - '${{ inputs.source_branch }}'
     - '${{ inputs.target_branch }}'
