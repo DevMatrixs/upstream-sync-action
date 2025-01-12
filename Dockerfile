@@ -1,18 +1,13 @@
 FROM alpine:latest
 
-# Install necessary packages
 RUN apk add --no-cache \
-    bash \
-    git
+	bash \
+	git
 
-# Add your script files to the container
-ADD *.sh /home/root/
+RUN adduser -D ci
 
-# Make the scripts executable
-RUN chmod 555 /home/root/*.sh
+ADD *.sh /home/ci/
 
-# Set the working directory
-WORKDIR /home/root
+RUN chmod 555 /home/ci/*.sh 
 
-# Set entrypoint to your script
-ENTRYPOINT ["/home/root/entrypoint.sh"]
+ENTRYPOINT ["/home/ci/entrypoint.sh"]
