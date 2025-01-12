@@ -30,17 +30,11 @@ TARGET_BRANCH=$4
 
 # Check if all required arguments are provided
 if [ -z "$MY_TOKEN" ] || [ -z "$UPSTREAM_REPO" ] || [ -z "$SOURCE_BRANCH" ] || [ -z "$TARGET_BRANCH" ]; then
-    log_error "Missing required arguments: My Token, Upstream Repo, Source Branch, or Target Branch."
+    log_error "Required arguments missing: My Token, Upstream Repo, Source Branch, or Target Branch."
     exit 1
 fi
 
 log_header
-
-# Configure Git
-log_info "Setting up Git config with My token for authentication."
-git config --global user.email "github-actions@github.com"
-git config --global user.name "GitHub Actions"
-git config --global url."https://$MY_TOKEN@github.com".insteadOf "https://github.com"
 
 # Handle "dubious ownership" error by marking the directory as safe
 log_info "Marking the workspace directory as safe for Git operations."
@@ -84,16 +78,9 @@ git checkout $TARGET_BRANCH || {
     exit 1
 }
 
-# Create a temporary branch from the source branch
-log_info "Creating temporary branch from source branch: $SOURCE_BRANCH"
-git checkout -b temp-branch upstream/$SOURCE_BRANCH || {
-    log_error "Failed to create temporary branch from source branch '$SOURCE_BRANCH'."
-    exit 1
-}
-
 # Merge changes
 log_info "Merging changes from source branch '$SOURCE_BRANCH' into target branch '$TARGET_BRANCH'..."
-git merge temp-branch || {
+git merge upstream/$SOURCE_BRANCH || {
     log_error "Merge conflict detected or merge failed."
     exit 1
 }
@@ -102,20 +89,6 @@ git merge temp-branch || {
 log_info "Pushing changes to the target branch: $TARGET_BRANCH"
 git push origin $TARGET_BRANCH || {
     log_error "Failed to push changes to target branch '$TARGET_BRANCH'."
-    exit 1
-}
-
-# Switch back to the target branch before deleting temp-branch
-log_info "Switching back to the target branch: $TARGET_BRANCH"
-git checkout $TARGET_BRANCH || {
-    log_error "Failed to checkout target branch '$TARGET_BRANCH'."
-    exit 1
-}
-
-# Delete temporary branch
-log_info "Deleting temporary branch: temp-branch"
-git branch -D temp-branch || {
-    log_error "Failed to delete temporary branch."
     exit 1
 }
 
