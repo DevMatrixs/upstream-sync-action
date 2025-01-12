@@ -61,9 +61,18 @@ fi
 
 # Push the changes to the remote repository
 echo "+ Pushing changes to the remote repository..."
-if ! git push origin "$TARGET_BRANCH"; then
-  echo "Error: Failed to push changes to the repository."
-  exit 1
+if [ "${INPUT_FORCE_PUSH}" = "true" ]; then
+  echo "Force pushing to $TARGET_BRANCH..."
+  if ! git push origin "$TARGET_BRANCH" --force; then
+    echo "Error: Failed to force push changes to the repository."
+    exit 1
+  fi
+else
+  echo "Pushing to $TARGET_BRANCH..."
+  if ! git push origin "$TARGET_BRANCH"; then
+    echo "Error: Failed to push changes to the repository."
+    exit 1
+  fi
 fi
 
 echo "Upstream sync complete!"
