@@ -23,24 +23,24 @@ log_footer() {
 }
 
 # Check if GITHUB_TOKEN is passed as an argument or fallback to environment variable
-GITHUB_TOKEN="${1:-$GITHUB_TOKEN}"
+MY_TOKEN="${1:-$MY_TOKEN}"
 UPSTREAM_REPO=$2
 SOURCE_BRANCH=$3
 TARGET_BRANCH=$4
 
 # Check if all required arguments are provided
-if [ -z "$GITHUB_TOKEN" ] || [ -z "$UPSTREAM_REPO" ] || [ -z "$SOURCE_BRANCH" ] || [ -z "$TARGET_BRANCH" ]; then
-    log_error "Missing required arguments: GitHub Token, Upstream Repo, Source Branch, or Target Branch."
+if [ -z "$MY_TOKEN" ] || [ -z "$UPSTREAM_REPO" ] || [ -z "$SOURCE_BRANCH" ] || [ -z "$TARGET_BRANCH" ]; then
+    log_error "Missing required arguments: My Token, Upstream Repo, Source Branch, or Target Branch."
     exit 1
 fi
 
 log_header
 
 # Configure Git
-log_info "Setting up Git config with GitHub token for authentication."
+log_info "Setting up Git config with My token for authentication."
 git config --global user.email "github-actions@github.com"
 git config --global user.name "GitHub Actions"
-git config --global url."https://$GITHUB_TOKEN@github.com".insteadOf "https://github.com"
+git config --global url."https://$MY_TOKEN@github.com".insteadOf "https://github.com"
 
 # Handle "dubious ownership" error by marking the directory as safe
 log_info "Marking the workspace directory as safe for Git operations."
