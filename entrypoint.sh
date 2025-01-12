@@ -27,73 +27,94 @@ UPSTREAM_REPO=$2
 SOURCE_BRANCH=$3
 TARGET_BRANCH=$4
 
-# Required arguments check
+# Check if all required arguments are provided
 if [ -z "$GITHUB_TOKEN" ] || [ -z "$UPSTREAM_REPO" ] || [ -z "$SOURCE_BRANCH" ] || [ -z "$TARGET_BRANCH" ]; then
-    log_error "Required arguments missing: GitHub Token, Upstream Repo, Source Branch, Target Branch."
+    log_error "Missing required arguments: GitHub Token, Upstream Repo, Source Branch, or Target Branch."
     exit 1
 fi
 
 log_header
 
-# Git setup
-log_info "GitHub token ke saath Git config setup kiya ja raha hai."
+# Configure Git
+log_info "Setting up Git config with GitHub token for authentication."
 git config --global user.email "github-actions@github.com"
 git config --global user.name "GitHub Actions"
 git config --global url."https://$GITHUB_TOKEN@github.com".insteadOf "https://github.com"
 
-# Mark directory as safe for Git
-log_info "Workspace directory ko Git ke liye safe mark kiya ja raha hai."
+# Handle "dubious ownership" error by marking the directory as safe
+log_info "Marking the workspace directory as safe for Git operations."
 git config --global --add safe.directory /github/workspace || {
-    log_error "Workspace ko safe directory mark karne mein error aayi."
+    log_error "Failed to mark /github/workspace as a safe directory."
     exit 1
 }
 
 # Add upstream remote
-log_info "Upstream remote ko add kiya ja raha hai: $UPSTREAM_REPO"
+log_info "Adding upstream remote: $UPSTREAM_REPO"
 git remote add upstream https://github.com/$UPSTREAM_REPO.git || {
-    log_error "Upstream remote add karne mein error aayi."
+    log_error "Failed to add upstream remote."
     exit 1
 }
 
-# Fetch upstream repo
-log_info "Upstream repository se changes fetch kiye ja rahe hain..."
+# Fetch upstream repository
+log_info "Fetching changes from upstream repository..."
 git fetch upstream || {
-    log_error "Upstream se fetch karne mein error aayi."
+    log_error "Fetching from upstream failed."
     exit 1
 }
 
 # Check if source branch exists
-log_info "Source branch '$SOURCE_BRANCH' ko check kiya ja raha hai..."
+log_info "Checking if the source branch '$SOURCE_BRANCH' exists..."
 if ! git ls-remote --heads upstream $SOURCE_BRANCH > /dev/null; then
-    log_error "Source branch '$SOURCE_BRANCH' upstream repository mein nahi hai."
+    log_error "Source branch '$SOURCE_BRANCH' does not exist in upstream repository."
     exit 1
 fi
 
 # Check if target branch exists
-log_info "Target branch '$TARGET_BRANCH' ko check kiya ja raha hai..."
+log_info "Checking if the target branch '$TARGET_BRANCH' exists..."
 if ! git ls-remote --heads upstream $TARGET_BRANCH > /dev/null; then
-    log_error "Target branch '$TARGET_BRANCH' upstream repository mein nahi hai."
+    log_error "Target branch '$TARGET_BRANCH' does not exist in upstream repository."
     exit 1
 fi
 
-# Checkout target branch
-log_info "Target branch '$TARGET_BRANCH' ko checkout kiya ja raha hai."
+# Checkout the target branch
+log_info "Checking out the target branch: $TARGET_BRANCH"
 git checkout $TARGET_BRANCH || {
-    log_error "Target branch '$TARGET_BRANCH' ko checkout karne mein error aayi."
+    log_error "Failed to checkout target branch '$TARGET_BRANCH'."
     exit 1
 }
 
-# Direct merge from source branch to target branch
-log_info "Source branch '$SOURCE_BRANCH' ko directly target branch '$TARGET_BRANCH' mein merge kiya ja raha hai..."
-git merge upstream/$SOURCE_BRANCH || {
-    log_error "Merge conflict ya merge failure."
+# Create a temporary branch from the source branch
+log_info "Creating temporary branch from source branch: $SOURCE_BRANCH"
+git checkout -b temp-branch upstream/$SOURCE_BRANCH || {
+    log_error "Failed to create temporary branch from source branch '$SOURCE_BRANCH'."
     exit 1
 }
 
-# Push changes to target branch
-log_info "Target branch '$TARGET_BRANCH' mein changes push kiye ja rahe hain."
+# Merge changes
+log_info "Merging changes from source branch '$SOURCE_BRANCH' into target branch '$TARGET_BRANCH'..."
+git merge temp-branch || {
+    log_error "Merge conflict detected or merge failed."
+    exit 1
+}
+
+# Push changes to the target branch
+log_info "Pushing changes to the target branch: $TARGET_BRANCH"
 git push origin $TARGET_BRANCH || {
-    log_error "Target branch '$TARGET_BRANCH' mein push karne mein error aayi."
+    log_error "Failed to push changes to target branch '$TARGET_BRANCH'."
+    exit 1
+}
+
+# Switch back to the target branch before deleting temp-branch
+log_info "Switching back to the target branch: $TARGET_BRANCH"
+git checkout $TARGET_BRANCH || {
+    log_error "Failed to checkout target branch '$TARGET_BRANCH'."
+    exit 1
+}
+
+# Delete temporary branch
+log_info "Deleting temporary branch: temp-branch"
+git branch -D temp-branch || {
+    log_error "Failed to delete temporary branch."
     exit 1
 }
 
