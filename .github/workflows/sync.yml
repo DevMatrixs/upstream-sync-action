@@ -1,9 +1,7 @@
 name: Upstream Sync and Push
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:  # This allows manual triggering from GitHub UI
 
 jobs:
   sync_and_push:
@@ -12,11 +10,6 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-
-    - name: Set up GitHub Token
-      uses: actions/setup-git@v1
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Run Upstream Sync Action
       uses: ./  # Assuming this action is in the root directory of your repo
