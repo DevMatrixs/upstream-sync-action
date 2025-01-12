@@ -38,3 +38,7 @@ runs:
     INPUT_TARGET_BRANCH: ${{ inputs.TARGET_BRANCH }}
     INPUT_UPSTREAM_BRANCH: ${{ inputs.UPSTREAM_BRANCH }}
     INPUT_FORCE_PUSH: ${{ inputs.FORCE_PUSH }}
+
+branding:
+  icon: "git-merge"
+  color: "blue"
