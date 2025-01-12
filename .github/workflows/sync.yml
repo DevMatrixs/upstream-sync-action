@@ -12,7 +12,7 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Set up GitHub Token
-      uses: actions/setup-git
+      uses: actions/setup-git@v2
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
 
