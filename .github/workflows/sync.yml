@@ -15,6 +15,6 @@ jobs:
       uses: ./  # Assuming this action is in the root directory of your repo
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        upstream_repo: 'username/repository'
+        upstream_repo: 'j-hc/revanced-magisk-module'
         source_branch: 'main'
         target_branch: 'main'
