@@ -104,6 +104,13 @@ git push origin $TARGET_BRANCH || {
     exit 1
 }
 
+# Switch back to the target branch before deleting temp-branch
+log_info "Switching back to the target branch: $TARGET_BRANCH"
+git checkout $TARGET_BRANCH || {
+    log_error "Failed to checkout target branch '$TARGET_BRANCH'."
+    exit 1
+}
+
 # Delete temporary branch
 log_info "Deleting temporary branch: temp-branch"
 git branch -D temp-branch || {
