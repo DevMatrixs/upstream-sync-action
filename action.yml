@@ -12,7 +12,7 @@ inputs:
     description: 'Git user email (default: actions@github.com)'
     required: false
     default: 'actions@github.com'
-  UPSTREBM_REPO:
+  UPSTREAM_REPO:
     description: 'The name of the upstream repository (required).'
     required: true
   TARGET_BRANCH:
