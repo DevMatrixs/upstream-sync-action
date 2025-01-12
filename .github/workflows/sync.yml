@@ -17,9 +17,10 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Run Upstream Sync Action
-      uses: ./  
+      uses: ./
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         upstream_repo: 'username/repository'
         source_branch: 'main'
         target_branch: 'main'
+        script: './entrypoint.sh'
