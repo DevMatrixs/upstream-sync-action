@@ -17,6 +17,6 @@ jobs:
         uses: ./
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          upstream_repo: 'owner/repo'
-          source_branch: 'source-branch'
-          target_branch: 'target-branch'
+          upstream_repo: 'j-hc/revanced-magisk-module'
+          source_branch: 'main'
+          target_branch: 'main'
