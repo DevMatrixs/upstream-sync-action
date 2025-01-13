@@ -4,7 +4,7 @@ description: 'Fork repository ko upstream repository ke saath sync karo.'
 
 inputs:
   github_token:
-    description: 'Authentication ke liye GitHub token'
+    description: 'GitHub token for authentication'
     required: true
   fork_repo:
     description: 'Fork repository ka URL (jaise, username/repo)'
