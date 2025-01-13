@@ -12,11 +12,11 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Sync fork with upstream
-        uses: ./
+        uses: ./  # Local action reference
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           fork_repo: "your-fork-repo"
-          upstream_repo: "j-hc/revanced-magisk-module"
+          upstream_repo: "jh-c/revanced-magisk-module"
           branch: "main"
           custom_user_name: ${{ secrets.GIT_USERNAME }}
           custom_user_email: ${{ secrets.GIT_EMAIL }}
