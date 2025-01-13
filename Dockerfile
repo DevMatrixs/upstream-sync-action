@@ -5,10 +5,10 @@ FROM alpine:latest
 RUN apk add --no-cache git curl bash
 
 # Copy the shell script into the container
-COPY sync.sh /usr/local/bin/sync.sh
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 
 # Make the script executable
-RUN chmod +x /usr/local/bin/sync.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
 # Set the entrypoint for the container
-ENTRYPOINT ["bash", "/usr/local/bin/sync.sh"]
+ENTRYPOINT ["bash", "/usr/local/bin/entrypoint.sh"]
