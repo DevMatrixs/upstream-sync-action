@@ -1,19 +1,19 @@
 name: Sync Fork with Upstream
 
-description: 'Sync a fork repository with an upstream repository.'
+description: 'Fork repository ko upstream repository ke saath sync karo.'
 
 inputs:
   github_token:
-    description: 'GitHub token for authentication'
+    description: 'Authentication ke liye GitHub token'
     required: true
   fork_repo:
-    description: 'URL of the fork repository (e.g., username/repo)'
+    description: 'Fork repository ka URL (jaise, username/repo)'
     required: true
   upstream_repo:
-    description: 'URL of the upstream repository (e.g., username/repo)'
+    description: 'Upstream repository ka URL (jaise, username/repo)'
     required: true
   branch:
-    description: 'The branch to sync (default: main)'
+    description: 'Sync karne wali branch (default: main)'
     required: false
     default: 'main'
   custom_user_name:
