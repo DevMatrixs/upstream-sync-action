@@ -1,11 +1,16 @@
-FROM alpine:latest
+# Use an official GitHub Actions runner image
+FROM ghcr.io/actions/virtual-environments/ubuntu-20.04:latest
 
-RUN apk add --no-cache git bash
+# Install necessary dependencies
+RUN apt-get update && \
+    apt-get install -y git curl && \
+    rm -rf /var/lib/apt/lists/*
 
-WORKDIR /workspace
+# Copy the shell script into the container
+COPY sync.sh /usr/local/bin/sync.sh
 
-COPY entrypoint.sh /entrypoint.sh
+# Make the script executable
+RUN chmod +x /usr/local/bin/sync.sh
 
-RUN chmod +x /entrypoint.sh
-
-ENTRYPOINT ["/entrypoint.sh"]
+# Set the entrypoint for the container
+ENTRYPOINT ["bash", "/usr/local/bin/sync.sh"]
