@@ -1,100 +1,70 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-log_info() {
-    echo -e "\033[32m[INFO]\033[0m $1"
-}
+set -x
 
-log_error() {
-    echo -e "\033[31m[ERROR]\033[0m $1"
-}
+UPSTREAM_REPO=$1
+UPSTREAM_BRANCH=$2
+DOWNSTREAM_BRANCH=$3
+GITHUB_TOKEN=$4
+FETCH_ARGS=$5
+MERGE_ARGS=$6
+PUSH_ARGS=$7
+SPAWN_LOGS=$8
 
-log_separator() {
-    echo -e "\033[1;30m-------------------------------------------------\033[0m"
-}
+echo -e "\033[1;34m[INFO] \033[0m Starting sync process..."
 
-log_header() {
-    echo -e "\033[1;34mUpstream Sync Process Started...\033[0m"
-    log_separator
-}
-
-log_footer() {
-    log_separator
-    echo -e "\033[1;34mUpstream Sync Process Completed.\033[0m"
-}
-
-GITHUB_TOKEN=$1
-UPSTREAM_REPO=$2
-SOURCE_BRANCH=$3
-TARGET_BRANCH=$4
-
-# Check if all required arguments are provided
-if [ -z "$GITHUB_TOKEN" ] || [ -z "$UPSTREAM_REPO" ] || [ -z "$SOURCE_BRANCH" ] || [ -z "$TARGET_BRANCH" ]; then
-    log_error "Missing required arguments: GitHub Token, Upstream Repo, Source Branch, or Target Branch."
-    exit 1
+if [[ -z "$UPSTREAM_REPO" ]]; then
+  echo -e "\033[1;31m[ERROR] \033[0m Missing \$UPSTREAM_REPO"
+  exit 1
 fi
 
-log_header
-
-# Configure Git
-log_info "Setting up Git config with GitHub token for authentication."
-git config --global user.email "github-actions@github.com"
-git config --global user.name "GitHub Actions"
-git config --global url."https://$GITHUB_TOKEN@github.com".insteadOf "https://github.com"
-
-# Handle "dubious ownership" error by marking the directory as safe
-log_info "Marking the workspace directory as safe for Git operations."
-git config --global --add safe.directory /github/workspace || {
-    log_error "Failed to mark /github/workspace as a safe directory."
-    exit 1
-}
-
-# Add upstream remote
-log_info "Adding upstream remote: $UPSTREAM_REPO"
-git remote add upstream https://github.com/$UPSTREAM_REPO.git || {
-    log_error "Failed to add upstream remote."
-    exit 1
-}
-
-# Fetch upstream repository
-log_info "Fetching changes from upstream repository..."
-git fetch upstream || {
-    log_error "Fetching from upstream failed."
-    exit 1
-}
-
-# Check if source branch exists
-log_info "Checking if the source branch '$SOURCE_BRANCH' exists..."
-if ! git ls-remote --heads upstream $SOURCE_BRANCH > /dev/null; then
-    log_error "Source branch '$SOURCE_BRANCH' does not exist in upstream repository."
-    exit 1
+if [[ -z "$DOWNSTREAM_BRANCH" ]]; then
+  echo -e "\033[1;33m[WARNING] \033[0m Missing \$DOWNSTREAM_BRANCH, Defaulting to ${UPSTREAM_BRANCH}"
+  DOWNSTREAM_BRANCH=$UPSTREAM_BRANCH
 fi
 
-# Check if target branch exists
-log_info "Checking if the target branch '$TARGET_BRANCH' exists..."
-if ! git ls-remote --heads upstream $TARGET_BRANCH > /dev/null; then
-    log_error "Target branch '$TARGET_BRANCH' does not exist in upstream repository."
-    exit 1
+if ! echo "$UPSTREAM_REPO" | grep '\.git'; then
+  UPSTREAM_REPO="https://github.com/${UPSTREAM_REPO_PATH}.git"
 fi
 
-# Checkout the target branch
-log_info "Checking out the target branch: $TARGET_BRANCH"
-git checkout $TARGET_BRANCH || {
-    log_error "Failed to checkout target branch '$TARGET_BRANCH'."
-    exit 1
-}
+echo -e "\033[1;32m[INFO] \033[0m UPSTREAM_REPO set to: $UPSTREAM_REPO"
 
-# Merge changes directly from the source branch
-log_info "Merging changes from source branch '$SOURCE_BRANCH' into target branch '$TARGET_BRANCH'..."
-git merge upstream/$SOURCE_BRANCH || {
-    log_error "Merge conflict detected or merge failed."
-    exit 1
-}
+git clone "https://github.com/${GITHUB_REPOSITORY}.git" work
+cd work || { echo -e "\033[1;31m[ERROR] \033[0m Missing work dir" && exit 2; }
 
-# Push changes to the target branch
-log_info "Pushing changes to the target branch: $TARGET_BRANCH"
-git push origin $TARGET_BRANCH || {
-    log_error "Failed to push changes to target branch '$TARGET_BRANCH'."
-    exit 1
-}
+git config user.name "${GITHUB_ACTOR}"
+git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+git config --local user.password ${GITHUB_TOKEN}
 
-log_footer
+git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+git remote add upstream "$UPSTREAM_REPO"
+git fetch ${FETCH_ARGS} upstream
+git remote -v
+
+git checkout ${DOWNSTREAM_BRANCH}
+
+case ${SPAWN_LOGS} in
+  (true)    echo -n "Syncing from upstream repo https://github.com/dabreadman/sync-upstream-repo, keeping CI alive."\
+            "UNIX Time: " >> sync-upstream-repo
+            date +"%s" >> sync-upstream-repo
+            git add sync-upstream-repo
+            git commit sync-upstream-repo -m "Syncing upstream";;
+  (false)   echo -e "\033[1;33m[INFO] \033[0m Not spawning time logs";;
+esac
+
+git push origin
+
+MERGE_RESULT=$(git merge ${MERGE_ARGS} upstream/${UPSTREAM_BRANCH})
+
+if [[ -z "$MERGE_RESULT" ]]; then
+  echo -e "\033[1;31m[ERROR] \033[0m Merge failed or no changes."
+  exit 1
+elif [[ $MERGE_RESULT != *"Already up to date."* ]]; then
+  git commit -m "Merged upstream"
+  git push ${PUSH_ARGS} origin ${DOWNSTREAM_BRANCH} || exit $?
+fi
+
+cd ..
+rm -rf work
+
+echo -e "\033[1;32m[INFO] \033[0m Sync completed successfully!"
