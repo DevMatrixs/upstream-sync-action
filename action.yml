@@ -1,23 +1,30 @@
-name: "Upstream Sync and Push"
-description: "This action syncs with the upstream repository and pushes changes"
+name: Sync Fork with Upstream
+
+description: 'Sync a fork repository with an upstream repository.'
+
 inputs:
-  my_token:
-    description: 'My Token for authentication'
+  github_token:
+    description: 'GitHub token for authentication'
+    required: true
+    default: ${{ secrets.GITHUB_TOKEN }}
+  fork_repo:
+    description: 'URL of the fork repository (e.g., username/repo)'
     required: true
   upstream_repo:
-    description: 'Name of the upstream repository (e.g., username/repo-name)'
+    description: 'URL of the upstream repository (e.g., username/repo)'
     required: true
-  source_branch:
-    description: 'Branch from the upstream repository to sync from'
-    required: true
-  target_branch:
-    description: 'Branch in the forked repo to push changes to'
-    required: true
+  branch:
+    description: 'The branch to sync (default: main)'
+    required: false
+    default: 'main'
+  custom_user_name:
+    description: 'Custom Git user name (optional)'
+    required: false
+  custom_user_email:
+    description: 'Custom Git user email (optional)'
+    required: false
+
 runs:
   using: 'docker'
   image: 'Dockerfile'
-  args:
-    - '${{ inputs.my_token }}'
-    - '${{ inputs.upstream_repo }}'
-    - '${{ inputs.source_branch }}'
-    - '${{ inputs.target_branch }}'
+  entrypoint: '/entrypoint.sh ${{ inputs.github_token }} ${{ inputs.fork_repo }} ${{ inputs.upstream_repo }} ${{ inputs.branch }} ${{ inputs.custom_user_name }} ${{ inputs.custom_user_email }}'
