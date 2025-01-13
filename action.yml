@@ -6,7 +6,6 @@ inputs:
   github_token:
     description: 'GitHub token for authentication'
     required: true
-    default: ${{ secrets.GITHUB_TOKEN }}
   fork_repo:
     description: 'URL of the fork repository (e.g., username/repo)'
     required: true
