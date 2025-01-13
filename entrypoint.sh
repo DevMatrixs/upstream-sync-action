@@ -1,95 +1,103 @@
 #!/bin/bash
 
-log_info() {
-    echo -e "\033[32m[INFO]\033[0m $1"
+set -e
+
+GREEN="\033[0;32m"
+RED="\033[0;31m"
+RESET="\033[0m"
+
+date_stamp() {
+    date "+%Y-%m-%d %H:%M:%S"
 }
 
-log_error() {
-    echo -e "\033[31m[ERROR]\033[0m $1"
+print_info() {
+    echo -e "${GREEN}[INFO] $1${RESET} $(date_stamp)"
 }
 
-log_separator() {
-    echo -e "\033[1;30m-------------------------------------------------\033[0m"
+print_error() {
+    echo -e "${RED}[ERROR] $1${RESET} $(date_stamp)"
 }
 
-log_header() {
-    echo -e "\033[1;34mUpstream Sync Process Started...\033[0m"
-    log_separator
+check_repo_exists() {
+    print_info "Checking if the repository exists at $1..."
+    git ls-remote "$1" &> /dev/null
+    if [[ $? -ne 0 ]]; then
+        print_error "Repository does not exist or invalid URL: $1"
+        exit 1
+    fi
+    print_info "Repository exists: $1"
 }
 
-log_footer() {
-    log_separator
-    echo -e "\033[1;34mUpstream Sync Process Completed.\033[0m"
+set_git_config() {
+    if [[ -n "$CUSTOM_USER_NAME" && -n "$CUSTOM_USER_EMAIL" ]]; then
+        print_info "Setting custom Git user name and email..."
+        git config --global user.name "$CUSTOM_USER_NAME"
+        git config --global user.email "$CUSTOM_USER_EMAIL"
+        print_info "Custom Git user name and email set."
+    else
+        print_info "No custom Git user info provided, using default Git config."
+    fi
 }
 
-# Check if GITHUB_TOKEN is passed as an argument or fallback to environment variable
-MY_TOKEN="${1:-$MY_TOKEN}"
-UPSTREAM_REPO=$2
-SOURCE_BRANCH=$3
-TARGET_BRANCH=$4
+GITHUB_TOKEN=$1
+FORK_REPO=$2
+UPSTREAM_REPO=$3
+BRANCH=${4:-main}
+CUSTOM_USER_NAME=$5
+CUSTOM_USER_EMAIL=$6
 
-# Check if all required arguments are provided
-if [ -z "$MY_TOKEN" ] || [ -z "$UPSTREAM_REPO" ] || [ -z "$SOURCE_BRANCH" ] || [ -z "$TARGET_BRANCH" ]; then
-    log_error "Required arguments missing: My Token, Upstream Repo, Source Branch, or Target Branch."
+if [[ -z "$GITHUB_TOKEN" || -z "$FORK_REPO" || -z "$UPSTREAM_REPO" ]]; then
+    print_error "Missing required arguments."
+    echo "Usage: entrypoint.sh <GITHUB_TOKEN> <FORK_REPO> <UPSTREAM_REPO> [BRANCH] [CUSTOM_USER_NAME] [CUSTOM_USER_EMAIL]"
     exit 1
 fi
 
-log_header
+print_info "Starting the synchronization process..."
 
-# Handle "dubious ownership" error by marking the directory as safe
-log_info "Marking the workspace directory as safe for Git operations."
-git config --global --add safe.directory /github/workspace || {
-    log_error "Failed to mark /github/workspace as a safe directory."
-    exit 1
-}
+check_repo_exists "$FORK_REPO"
+check_repo_exists "$UPSTREAM_REPO"
 
-# Add upstream remote
-log_info "Adding upstream remote: $UPSTREAM_REPO"
-git remote add upstream https://github.com/$UPSTREAM_REPO.git || {
-    log_error "Failed to add upstream remote."
+print_info "Validating branch '$BRANCH' in upstream repository..."
+git ls-remote --heads "$UPSTREAM_REPO" "$BRANCH" &> /dev/null
+if [[ $? -ne 0 ]]; then
+    print_error "Branch '$BRANCH' does not exist in upstream repository: $UPSTREAM_REPO"
     exit 1
-}
-
-# Fetch upstream repository
-log_info "Fetching changes from upstream repository..."
-git fetch upstream || {
-    log_error "Fetching from upstream failed."
-    exit 1
-}
-
-# Check if source branch exists
-log_info "Checking if the source branch '$SOURCE_BRANCH' exists..."
-if ! git ls-remote --heads upstream $SOURCE_BRANCH > /dev/null; then
-    log_error "Source branch '$SOURCE_BRANCH' does not exist in upstream repository."
-    exit 1
+else
+    print_info "Branch '$BRANCH' validated successfully."
 fi
 
-# Check if target branch exists
-log_info "Checking if the target branch '$TARGET_BRANCH' exists..."
-if ! git ls-remote --heads upstream $TARGET_BRANCH > /dev/null; then
-    log_error "Target branch '$TARGET_BRANCH' does not exist in upstream repository."
+print_info "Cloning the fork repository..."
+git clone https://$GITHUB_TOKEN@$FORK_REPO repo
+cd repo
+print_info "Fork repository cloned successfully."
+
+print_info "Adding upstream repository..."
+git remote add upstream $UPSTREAM_REPO
+print_info "Upstream repository added successfully."
+
+set_git_config
+
+print_info "Fetching upstream changes..."
+git fetch upstream
+print_info "Upstream changes fetched successfully."
+
+print_info "Checking out the branch '$BRANCH'..."
+git checkout $BRANCH
+print_info "Branch '$BRANCH' checked out successfully."
+
+print_info "Merging upstream/$BRANCH into $BRANCH..."
+git merge upstream/$BRANCH --no-ff -m "Syncing with upstream/$BRANCH"
+if [[ $? -ne 0 ]]; then
+    print_error "Merge conflict occurred during the merge."
+    print_error "Please resolve the conflicts manually and then commit the changes."
+    git status
     exit 1
+else
+    print_info "Merge completed successfully."
 fi
 
-# Checkout the target branch
-log_info "Checking out the target branch: $TARGET_BRANCH"
-git checkout $TARGET_BRANCH || {
-    log_error "Failed to checkout target branch '$TARGET_BRANCH'."
-    exit 1
-}
+print_info "Pushing changes back to fork repository..."
+git push origin $BRANCH
+print_info "Changes pushed to fork repository successfully."
 
-# Merge changes
-log_info "Merging changes from source branch '$SOURCE_BRANCH' into target branch '$TARGET_BRANCH'..."
-git merge upstream/$SOURCE_BRANCH || {
-    log_error "Merge conflict detected or merge failed."
-    exit 1
-}
-
-# Push changes to the target branch
-log_info "Pushing changes to the target branch: $TARGET_BRANCH"
-git push origin $TARGET_BRANCH || {
-    log_error "Failed to push changes to target branch '$TARGET_BRANCH'."
-    exit 1
-}
-
-log_footer
+print_info "Synchronization process completed successfully!"
