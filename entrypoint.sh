@@ -39,6 +39,7 @@ set_git_config() {
     fi
 }
 
+# Input parameters
 GITHUB_TOKEN=$1
 FORK_REPO=$2
 UPSTREAM_REPO=$3
@@ -46,6 +47,7 @@ BRANCH=${4:-main}
 CUSTOM_USER_NAME=$5
 CUSTOM_USER_EMAIL=$6
 
+# Check if mandatory inputs are provided
 if [[ -z "$GITHUB_TOKEN" || -z "$FORK_REPO" || -z "$UPSTREAM_REPO" ]]; then
     print_error "Missing required arguments."
     echo "Usage: entrypoint.sh <GITHUB_TOKEN> <FORK_REPO> <UPSTREAM_REPO> [BRANCH] [CUSTOM_USER_NAME] [CUSTOM_USER_EMAIL]"
@@ -75,29 +77,4 @@ print_info "Adding upstream repository..."
 git remote add upstream $UPSTREAM_REPO
 print_info "Upstream repository added successfully."
 
-set_git_config
-
-print_info "Fetching upstream changes..."
-git fetch upstream
-print_info "Upstream changes fetched successfully."
-
-print_info "Checking out the branch '$BRANCH'..."
-git checkout $BRANCH
-print_info "Branch '$BRANCH' checked out successfully."
-
-print_info "Merging upstream/$BRANCH into $BRANCH..."
-git merge upstream/$BRANCH --no-ff -m "Syncing with upstream/$BRANCH"
-if [[ $? -ne 0 ]]; then
-    print_error "Merge conflict occurred during the merge."
-    print_error "Please resolve the conflicts manually and then commit the changes."
-    git status
-    exit 1
-else
-    print_info "Merge completed successfully."
-fi
-
-print_info "Pushing changes back to fork repository..."
-git push origin $BRANCH
-print_info "Changes pushed to fork repository successfully."
-
-print_info "Synchronization process completed successfully!"
+# Set Git configuration if custom user info is
