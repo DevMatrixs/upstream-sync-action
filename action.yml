@@ -1,29 +1,30 @@
-name: Sync Fork with Upstream
+name: Upstream Sync
 
-description: 'Fork repository ko upstream repository ke saath sync karo.'
+description: Sync changes from the source branch in upstream to the target branch.
 
 inputs:
   github_token:
     description: 'GitHub token for authentication'
     required: true
-  fork_repo:
-    description: 'Fork repository ka URL (jaise, username/repo)'
-    required: true
   upstream_repo:
-    description: 'Upstream repository ka URL (jaise, username/repo)'
+    description: 'Upstream repository (owner/repo)'
     required: true
-  branch:
-    description: 'Sync karne wali branch (default: main)'
-    required: false
-    default: 'main'
-  custom_user_name:
-    description: 'Custom Git user name (optional)'
-    required: false
-  custom_user_email:
-    description: 'Custom Git user email (optional)'
-    required: false
+  source_branch:
+    description: 'Source branch in the upstream repository'
+    required: true
+  target_branch:
+    description: 'Target branch to merge into'
+    required: true
 
 runs:
   using: 'docker'
   image: 'Dockerfile'
-  entrypoint: '/entrypoint.sh ${{ inputs.github_token }} ${{ inputs.fork_repo }} ${{ inputs.upstream_repo }} ${{ inputs.branch }} ${{ inputs.custom_user_name }} ${{ inputs.custom_user_email }}'
+  args:
+    - ${{ inputs.github_token }}
+    - ${{ inputs.upstream_repo }}
+    - ${{ inputs.source_branch }}
+    - ${{ inputs.target_branch }}
+
+branding:
+  icon: 'git-merge'
+  color: 'blue'
