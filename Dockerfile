@@ -1,10 +1,8 @@
-# Use an official GitHub Actions runner image
-FROM ghcr.io/actions/virtual-environments/ubuntu-20.04:latest
+# Use Alpine as the base image
+FROM alpine:latest
 
 # Install necessary dependencies
-RUN apt-get update && \
-    apt-get install -y git curl && \
-    rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache git curl bash
 
 # Copy the shell script into the container
 COPY sync.sh /usr/local/bin/sync.sh
